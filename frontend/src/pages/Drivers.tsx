@@ -11,6 +11,8 @@ export const Drivers = () => {
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [sendingReminders, setSendingReminders] = useState(false);
+
   const [formData, setFormData] = useState({
     name: '',
     licenseNo: '',
@@ -66,6 +68,22 @@ export const Drivers = () => {
     }
   };
 
+  const handleSendReminders = async () => {
+    setSendingReminders(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post('http://localhost:5000/api/drivers/reminders', {}, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      alert(res.data.message || 'Reminders sent successfully!');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to send reminders (Backend might be down)');
+    } finally {
+      setSendingReminders(false);
+    }
+  };
+
   if (!isDemo) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-wireMuted mt-20">
@@ -89,7 +107,14 @@ export const Drivers = () => {
     <div className="h-full flex flex-col space-y-6 pb-8 text-wireText font-sans relative">
       
       {/* TOP BAR / FILTERS */}
-      <div className="flex justify-end border-b border-wireBorder/50 pb-4">
+      <div className="flex justify-end space-x-4 border-b border-wireBorder/50 pb-4">
+        <button 
+          onClick={handleSendReminders}
+          disabled={sendingReminders}
+          className="bg-primary/20 text-primary hover:bg-primary/30 text-xs font-semibold px-4 py-2 rounded-md transition-colors flex items-center gap-2 disabled:opacity-50"
+        >
+          {sendingReminders ? 'Sending...' : 'Send Reminders'}
+        </button>
         <button 
           onClick={() => setIsModalOpen(true)}
           className="bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold px-4 py-2 rounded-md transition-colors flex items-center gap-2"

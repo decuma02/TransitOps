@@ -33,6 +33,7 @@ model Vehicle {
   status          VehicleStatus @default(AVAILABLE)
   trips           Trip[]
   maintenanceLogs MaintenanceLog[]
+  documents       VehicleDocument[]
 }
 
 enum VehicleStatus {
@@ -107,4 +108,13 @@ model Expense {
   amount      Float
   date        DateTime @default(now())
   type        String // e.g. "TOLL", "MAINTENANCE"
+}
+
+model VehicleDocument {
+  id        String   @id @default(uuid())
+  vehicleId String
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id])
+  name      String
+  fileUrl   String
+  createdAt DateTime @default(now())
 }

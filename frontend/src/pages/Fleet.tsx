@@ -16,6 +16,12 @@ export const Fleet = () => {
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDocModalOpen, setIsDocModalOpen] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [uploadingDoc, setUploadingDoc] = useState(false);
+  const [docFile, setDocFile] = useState<File | null>(null);
+
   const [formData, setFormData] = useState({
     registration: '',
     name: '',
@@ -62,6 +68,44 @@ export const Fleet = () => {
       // Faking success for demo UI if backend fails
       setVehicles([...vehicles, { ...formData, id: Date.now(), maxCapacity: Number(formData.maxCapacity), odometer: Number(formData.odometer) }]);
       setIsModalOpen(false);
+    }
+  };
+
+  const openDocModal = async (vehicle: any) => {
+    setSelectedVehicle(vehicle);
+    setIsDocModalOpen(true);
+    try {
+      const res = await axios.get(`http://localhost:5000/api/vehicles/${vehicle.id}/documents`);
+      setDocuments(res.data);
+    } catch (err) {
+      console.error(err);
+      setDocuments([]); 
+    }
+  };
+
+  const handleDocUpload = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!docFile || !selectedVehicle) return;
+    setUploadingDoc(true);
+    const fd = new FormData();
+    fd.append('file', docFile);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(`http://localhost:5000/api/vehicles/${selectedVehicle.id}/documents`, fd, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const res = await axios.get(`http://localhost:5000/api/vehicles/${selectedVehicle.id}/documents`);
+      setDocuments(res.data);
+      setDocFile(null);
+      
+      // Clear file input visually
+      const fileInput = document.getElementById('docFileInput') as HTMLInputElement;
+      if (fileInput) fileInput.value = '';
+    } catch (err) {
+      console.error(err);
+      alert('Failed to upload document or you are in demo mode');
+    } finally {
+      setUploadingDoc(false);
     }
   };
 
@@ -178,6 +222,7 @@ export const Fleet = () => {
               <th className="pb-3 font-medium">Odometer</th>
               <th className="pb-3 font-medium">Acq. Cost</th>
               <th className="pb-3 font-medium">Status</th>
+              <th className="pb-3 font-medium">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -195,6 +240,9 @@ export const Fleet = () => {
                   <td className="py-3">{v.odometer.toLocaleString()}</td>
                   <td className="py-3">{formatCost(v.acqCost || Math.floor(Math.random() * 2000000 + 400000))}</td>
                   <td className="py-3">{getStatusBadge(v.status)}</td>
+                  <td className="py-3">
+                    <button onClick={() => openDocModal(v)} className="text-[10px] bg-primary/20 text-primary px-3 py-1.5 rounded hover:bg-primary/40 transition-colors uppercase tracking-wider font-semibold">Docs</button>
+                  </td>
                 </tr>
               ))
             )}
@@ -287,6 +335,49 @@ export const Fleet = () => {
                 </button>
               </div>
 
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* DOCUMENT MODAL */}
+      {isDocModalOpen && selectedVehicle && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-[#121212] border border-wireBorder p-6 rounded-md w-[500px]">
+            <h2 className="text-lg font-bold text-white mb-4">Documents - {selectedVehicle.registration}</h2>
+            
+            <div className="mb-4 max-h-48 overflow-y-auto pr-2">
+              {documents.length === 0 ? (
+                <p className="text-xs text-wireMuted">No documents found.</p>
+              ) : (
+                <ul className="space-y-2">
+                  {documents.map((doc: any, i) => (
+                    <li key={i} className="flex justify-between items-center bg-darkCard p-2 rounded border border-wireBorder/50 text-sm">
+                      <span className="text-wireText truncate w-3/4">{doc.name}</span>
+                      <a href={`http://localhost:5000${doc.fileUrl}`} target="_blank" rel="noreferrer" className="text-primary text-xs hover:underline">View</a>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <form onSubmit={handleDocUpload} className="mt-4 border-t border-wireBorder pt-4 space-y-4">
+              <div>
+                <label className="block text-[10px] text-wireMuted uppercase tracking-wider mb-1">Upload New Document</label>
+                <input 
+                  id="docFileInput"
+                  type="file" 
+                  required
+                  onChange={(e) => setDocFile(e.target.files ? e.target.files[0] : null)}
+                  className="text-sm text-wireMuted file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-primary/20 file:text-primary hover:file:bg-primary/30 w-full"
+                />
+              </div>
+              <div className="flex justify-end space-x-3 mt-4">
+                <button type="button" onClick={() => setIsDocModalOpen(false)} className="px-4 py-2 text-sm text-wireMuted hover:text-white transition-colors">Close</button>
+                <button type="submit" disabled={uploadingDoc} className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold rounded-md transition-colors disabled:opacity-50">
+                  {uploadingDoc ? 'Uploading...' : 'Upload'}
+                </button>
+              </div>
             </form>
           </div>
         </div>
