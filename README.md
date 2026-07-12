@@ -4,6 +4,8 @@
 
 <br/>
 
+**Developed in the Odoo Hackathon 2026**
+
 TransitOps is a comprehensive transport operations platform designed to streamline fleet management, trip dispatching, driver assignments, and vehicle maintenance logging. Built on a robust, modern technology stack, it provides real-time insights, automated status transitions, and analytical reporting.
 
 ## Architecture & Technology Stack
@@ -44,15 +46,6 @@ The entire infrastructure can be orchestrated effortlessly using Docker Compose.
     *   **Frontend User Interface**: `http://localhost`
     *   **Backend API Gateway**: `http://localhost:5000`
 
-### Demo Credentials
-
-The platform includes seeded demo users to explore the Role-Based Access Control (RBAC). The password for all accounts is **`demo123`**.
-
-*   **Fleet Manager**: `demo_fleet@transitops.com` (Full Access)
-*   **Dispatcher**: `demo_driver@transitops.com` (Dashboard, Trips)
-*   **Safety Officer**: `demo_safety@transitops.com` (Fleet, Drivers, Maintenance)
-*   **Financial Analyst**: `demo_finance@transitops.com` (Fuel & Expenses, Analytics)
-
 ### Teardown
 
 To stop the services and remove the containers, run:
@@ -63,7 +56,8 @@ docker-compose down
 ## Repository Structure
 
 *   `/frontend` - Contains the React Vite single-page application.
-*   `/backend` - Contains the Express.js REST API and Prisma schemas.
+*   `/backend` - Contains the Express.js REST API an
+d Prisma schemas.
 *   `docker-compose.yml` - Orchestrates the database, backend server, and Nginx-served frontend.
 
 <div align="center">
