@@ -31,6 +31,26 @@ export const Analytics = () => {
     }
   };
 
+  const handleExportPDF = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get('http://localhost:5000/api/analytics/export-pdf', {
+        responseType: 'blob',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'TransitOps_Analytics_Report.pdf');
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+    } catch (err) {
+      console.error(err);
+      alert('Failed to export PDF (Backend might be down)');
+    }
+  };
+
   const revenueData = [
     { name: 'Jan', revenue: 4000 },
     { name: 'Feb', revenue: 5000 },
@@ -42,8 +62,19 @@ export const Analytics = () => {
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       
+      {/* Top Action Bar */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-bold">Analytics Dashboard</h2>
+        <button 
+          onClick={handleExportPDF}
+          className="bg-primary/90 hover:bg-primary text-[#121212] text-xs font-semibold px-4 py-2 rounded-md transition-colors flex items-center gap-2"
+        >
+          Export to PDF
+        </button>
+      </div>
+
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="border-t-2 border-statusBlue bg-transparent border border-wireBorder p-4">
