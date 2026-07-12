@@ -119,46 +119,60 @@ export const Dashboard = () => {
       {/* KPI CARDS ROW */}
       <div className="flex space-x-4 overflow-x-auto pb-2 scrollbar-hide">
         {/* Card 1 */}
-        <div className="flex-none w-48 bg-transparent border border-wireBorder border-l-4 border-l-statusGreen p-4 rounded-sm flex flex-col justify-between">
-          <p className="text-[10px] text-wireMuted uppercase tracking-wider mb-2 font-medium">Active Vehicles</p>
-          <p className="text-2xl font-semibold text-white">{kpis.active}</p>
-        </div>
+        {['FLEET_MANAGER', 'DRIVER', 'SAFETY_OFFICER', 'FINANCIAL_ANALYST'].includes(user?.role || 'FLEET_MANAGER') && (
+          <div className="flex-none w-48 bg-transparent border border-wireBorder border-l-4 border-l-statusGreen p-4 rounded-sm flex flex-col justify-between">
+            <p className="text-[10px] text-wireMuted uppercase tracking-wider mb-2 font-medium">Active Vehicles</p>
+            <p className="text-2xl font-semibold text-white">{kpis.active}</p>
+          </div>
+        )}
         
         {/* Card 2 */}
-        <div className="flex-none w-48 bg-transparent border border-wireBorder border-l-4 border-l-[#a3e635] p-4 rounded-sm flex flex-col justify-between">
-          <p className="text-[10px] text-wireMuted uppercase tracking-wider mb-2 font-medium">Available Vehicles</p>
-          <p className="text-2xl font-semibold text-white">{kpis.available}</p>
-        </div>
+        {['FLEET_MANAGER', 'DRIVER'].includes(user?.role || 'FLEET_MANAGER') && (
+          <div className="flex-none w-48 bg-transparent border border-wireBorder border-l-4 border-l-[#a3e635] p-4 rounded-sm flex flex-col justify-between">
+            <p className="text-[10px] text-wireMuted uppercase tracking-wider mb-2 font-medium">Available Vehicles</p>
+            <p className="text-2xl font-semibold text-white">{kpis.available}</p>
+          </div>
+        )}
 
         {/* Card 3 */}
-        <div className="flex-none w-48 bg-transparent border border-wireBorder border-l-4 border-l-amber-500 p-4 rounded-sm flex flex-col justify-between">
-          <p className="text-[10px] text-wireMuted uppercase tracking-wider mb-2 font-medium">Vehicles In<br/>Maintenance</p>
-          <p className="text-2xl font-semibold text-white">{kpis.maintenance}</p>
-        </div>
+        {['FLEET_MANAGER', 'FINANCIAL_ANALYST'].includes(user?.role || 'FLEET_MANAGER') && (
+          <div className="flex-none w-48 bg-transparent border border-wireBorder border-l-4 border-l-amber-500 p-4 rounded-sm flex flex-col justify-between">
+            <p className="text-[10px] text-wireMuted uppercase tracking-wider mb-2 font-medium">Vehicles In<br/>Maintenance</p>
+            <p className="text-2xl font-semibold text-white">{kpis.maintenance}</p>
+          </div>
+        )}
 
         {/* Card 4 */}
-        <div className="flex-none w-48 bg-transparent border border-wireBorder border-l-4 border-l-blue-900 p-4 rounded-sm flex flex-col justify-between">
-          <p className="text-[10px] text-wireMuted uppercase tracking-wider mb-2 font-medium">Active Trips</p>
-          <p className="text-2xl font-semibold text-white">{kpis.activeTrips}</p>
-        </div>
+        {['DRIVER', 'SAFETY_OFFICER', 'FINANCIAL_ANALYST'].includes(user?.role || 'FLEET_MANAGER') && (
+          <div className="flex-none w-48 bg-transparent border border-wireBorder border-l-4 border-l-blue-900 p-4 rounded-sm flex flex-col justify-between">
+            <p className="text-[10px] text-wireMuted uppercase tracking-wider mb-2 font-medium">Active Trips</p>
+            <p className="text-2xl font-semibold text-white">{kpis.activeTrips}</p>
+          </div>
+        )}
 
         {/* Card 5 */}
-        <div className="flex-none w-48 bg-transparent border border-wireBorder border-l-4 border-l-statusBlue p-4 rounded-sm flex flex-col justify-between">
-          <p className="text-[10px] text-wireMuted uppercase tracking-wider mb-2 font-medium">Pending Trips</p>
-          <p className="text-2xl font-semibold text-white">{kpis.pending}</p>
-        </div>
+        {['DRIVER', 'FINANCIAL_ANALYST'].includes(user?.role || 'FLEET_MANAGER') && (
+          <div className="flex-none w-48 bg-transparent border border-wireBorder border-l-4 border-l-statusBlue p-4 rounded-sm flex flex-col justify-between">
+            <p className="text-[10px] text-wireMuted uppercase tracking-wider mb-2 font-medium">Pending Trips</p>
+            <p className="text-2xl font-semibold text-white">{kpis.pending}</p>
+          </div>
+        )}
 
         {/* Card 6 */}
-        <div className="flex-none w-48 bg-transparent border border-wireBorder border-l-4 border-l-indigo-500 p-4 rounded-sm flex flex-col justify-between">
-          <p className="text-[10px] text-wireMuted uppercase tracking-wider mb-2 font-medium">Drivers On Duty</p>
-          <p className="text-2xl font-semibold text-white">{kpis.drivers}</p>
-        </div>
+        {['DRIVER', 'SAFETY_OFFICER'].includes(user?.role || 'FLEET_MANAGER') && (
+          <div className="flex-none w-48 bg-transparent border border-wireBorder border-l-4 border-l-indigo-500 p-4 rounded-sm flex flex-col justify-between">
+            <p className="text-[10px] text-wireMuted uppercase tracking-wider mb-2 font-medium">Drivers On Duty</p>
+            <p className="text-2xl font-semibold text-white">{kpis.drivers}</p>
+          </div>
+        )}
 
         {/* Card 7 */}
-        <div className="flex-none w-48 bg-transparent border border-wireBorder border-l-4 border-l-statusGreen p-4 rounded-sm flex flex-col justify-between">
-          <p className="text-[10px] text-wireMuted uppercase tracking-wider mb-2 font-medium">Fleet Utilization</p>
-          <p className="text-2xl font-semibold text-white">{kpis.util}%</p>
-        </div>
+        {['FLEET_MANAGER', 'FINANCIAL_ANALYST'].includes(user?.role || 'FLEET_MANAGER') && (
+          <div className="flex-none w-48 bg-transparent border border-wireBorder border-l-4 border-l-statusGreen p-4 rounded-sm flex flex-col justify-between">
+            <p className="text-[10px] text-wireMuted uppercase tracking-wider mb-2 font-medium">Fleet Utilization</p>
+            <p className="text-2xl font-semibold text-white">{kpis.util}%</p>
+          </div>
+        )}
       </div>
 
       {/* LOWER SECTION */}
