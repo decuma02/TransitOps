@@ -62,7 +62,7 @@ export const Dashboard = () => {
   };
 
   return (
-    <div className="h-full flex flex-col space-y-8 pb-8 text-wireText font-sans">
+    <div className="w-full space-y-8 pb-8 text-wireText font-sans">
       
       {/* FILTERS SECTION */}
       <div>
