@@ -8,6 +8,11 @@
 
 TransitOps is a comprehensive transport operations platform designed to streamline fleet management, trip dispatching, driver assignments, and vehicle maintenance logging. Built on a robust, modern technology stack, it provides real-time insights, automated status transitions, and analytical reporting.
 
+## Team
+
+*   **S Akhil Kumar Patra (Team Leader)**: Added the logo and deployed the entire application.
+*   **Sarthak Mahapatra (Team Member)**: Developed the UI features, integrated Docker, and designed the database.
+
 ## Live Demo
 
 *   **Frontend**: [https://transit-ops-flame.vercel.app](https://transit-ops-flame.vercel.app)
