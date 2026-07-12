@@ -44,6 +44,15 @@ The entire infrastructure can be orchestrated effortlessly using Docker Compose.
     *   **Frontend User Interface**: `http://localhost`
     *   **Backend API Gateway**: `http://localhost:5000`
 
+### Demo Credentials
+
+The platform includes seeded demo users to explore the Role-Based Access Control (RBAC). The password for all accounts is **`demo123`**.
+
+*   **Fleet Manager**: `demo_fleet@transitops.com` (Full Access)
+*   **Dispatcher**: `demo_driver@transitops.com` (Dashboard, Trips)
+*   **Safety Officer**: `demo_safety@transitops.com` (Fleet, Drivers, Maintenance)
+*   **Financial Analyst**: `demo_finance@transitops.com` (Fuel & Expenses, Analytics)
+
 ### Teardown
 
 To stop the services and remove the containers, run:
