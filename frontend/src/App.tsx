@@ -10,6 +10,7 @@ import { Trips } from './pages/Trips';
 import { Maintenance } from './pages/Maintenance';
 import { Expenses } from './pages/Expenses';
 import { Analytics } from './pages/Analytics';
+import { Settings } from './pages/Settings';
 
 function App() {
   return (
@@ -25,7 +26,7 @@ function App() {
             <Route path="maintenance" element={<Maintenance />} />
             <Route path="expenses" element={<Expenses />} />
             <Route path="analytics" element={<Analytics />} />
-            <Route path="settings" element={<div className="text-white">Settings</div>} />
+            <Route path="settings" element={<Settings />} />
           </Route>
         </Routes>
       </BrowserRouter>

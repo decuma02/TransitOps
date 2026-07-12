@@ -1,45 +1,42 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Truck, Users, Map, Wrench, FileText, BarChart2, Settings } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export const Sidebar = () => {
   const { user } = useAuth();
   const menu = [
-    { name: 'Dashboard', path: '/', icon: <LayoutDashboard size={20} /> },
-    { name: 'Fleet', path: '/fleet', icon: <Truck size={20} /> },
-    { name: 'Drivers', path: '/drivers', icon: <Users size={20} /> },
-    { name: 'Trips', path: '/trips', icon: <Map size={20} /> },
-    { name: 'Maintenance', path: '/maintenance', icon: <Wrench size={20} /> },
-    { name: 'Fuel & Expenses', path: '/expenses', icon: <FileText size={20} /> },
-    { name: 'Analytics', path: '/analytics', icon: <BarChart2 size={20} /> },
+    { name: 'Dashboard', path: '/' },
+    { name: 'Fleet', path: '/fleet' },
+    { name: 'Drivers', path: '/drivers' },
+    { name: 'Trips', path: '/trips' },
+    { name: 'Maintenance', path: '/maintenance' },
+    { name: 'Fuel & Expenses', path: '/expenses' },
+    { name: 'Analytics', path: '/analytics' },
   ];
 
   if (user?.role === 'ADMIN' || user?.role === 'FLEET_MANAGER') {
-    menu.push({ name: 'Settings', path: '/settings', icon: <Settings size={20} /> });
+    menu.push({ name: 'Settings', path: '/settings' });
   }
 
   return (
-    <div className="w-64 bg-darkCard border-r border-gray-700 flex flex-col h-screen">
-      <div className="p-6 text-xl font-bold flex items-center space-x-2 border-b border-gray-700">
-        <Truck className="text-primary" />
-        <span className="text-white">TransitOps</span>
+    <div className="w-64 bg-darkBg border-r border-wireBorder flex flex-col h-screen">
+      <div className="p-6 text-2xl tracking-wide flex items-center space-x-2 border-b border-wireBorder mb-4">
+        <span className="text-wireText font-light">TransitOps</span>
       </div>
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
         {menu.map((item) => (
           <NavLink
             key={item.name}
             to={item.path}
             className={({ isActive }) =>
-              `flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors ${
+              `block px-4 py-2 rounded-lg text-sm transition-all duration-200 ${
                 isActive
-                  ? 'bg-gray-800 text-primary font-semibold'
-                  : 'text-gray-400 hover:bg-gray-800 hover:text-white'
+                  ? 'border border-primary text-wireText shadow-[0_0_8px_rgba(217,119,6,0.2)]'
+                  : 'text-wireMuted hover:text-wireText border border-transparent'
               }`
             }
           >
-            {item.icon}
-            <span>{item.name}</span>
+            {item.name}
           </NavLink>
         ))}
       </nav>

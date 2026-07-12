@@ -1,25 +1,37 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, User } from 'lucide-react';
 
 export const Header = () => {
   const { user, logout } = useAuth();
 
+  const getInitials = (name: string) => {
+    return name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U';
+  };
+
   return (
-    <header className="bg-darkCard border-b border-gray-700 h-16 flex items-center justify-between px-6">
-      <h2 className="text-xl font-semibold text-white">Project: <span className="text-primary">TransitOps Core</span></h2>
+    <header className="bg-darkBg border-b border-wireBorder h-16 flex items-center justify-between px-6">
+      <div className="flex-1 max-w-md">
+        <input 
+          type="text" 
+          placeholder="Search..." 
+          className="w-full bg-transparent border border-wireBorder rounded-md px-4 py-1.5 text-sm text-wireText placeholder-wireMuted focus:outline-none focus:border-wireMuted transition-colors"
+        />
+      </div>
+      
       <div className="flex items-center space-x-4">
-        <div className="flex items-center space-x-2 text-gray-300">
-          <User size={18} />
-          <span>{user?.name} ({user?.role})</span>
+        <div className="flex items-center space-x-3 text-sm">
+          <span className="text-wireMuted">{user?.name}</span>
+          <div className="flex items-center border border-wireBorder rounded-full overflow-hidden text-xs">
+            <span className="px-3 py-1 bg-transparent text-wireMuted border-r border-wireBorder capitalize">{user?.role?.toLowerCase().replace('_', ' ')}</span>
+            <span 
+              onClick={logout}
+              className="px-2 py-1 bg-statusBlue/20 text-statusBlue font-medium flex items-center justify-center cursor-pointer hover:bg-statusBlue/30 transition-colors" 
+              title="Logout" 
+            >
+              {getInitials(user?.name || '')}
+            </span>
+          </div>
         </div>
-        <button
-          onClick={logout}
-          className="text-gray-400 hover:text-red-400 transition flex items-center space-x-1"
-        >
-          <LogOut size={18} />
-          <span>Logout</span>
-        </button>
       </div>
     </header>
   );

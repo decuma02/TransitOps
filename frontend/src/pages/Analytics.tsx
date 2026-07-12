@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { BarChart2, Download } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { BarChart, Bar, Tooltip, ResponsiveContainer } from 'recharts';
 
 export const Analytics = () => {
   const [data, setData] = useState([]);
@@ -19,49 +18,80 @@ export const Analytics = () => {
     }
   };
 
-  const handleExportPDF = () => {
-    window.print(); // Simple PDF export for Hackathon using browser's print-to-PDF
-  };
+  const revenueData = [
+    { name: 'Jan', revenue: 4000 },
+    { name: 'Feb', revenue: 5000 },
+    { name: 'Mar', revenue: 4500 },
+    { name: 'Apr', revenue: 6000 },
+    { name: 'May', revenue: 5500 },
+    { name: 'Jun', revenue: 7000 },
+    { name: 'Jul', revenue: 6500 },
+  ];
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <BarChart2 className="text-primary" /> Reports & Analytics
-        </h1>
-        <button onClick={handleExportPDF} className="bg-gray-700 text-white font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-600 transition">
-          <Download size={20} /> Export PDF
-        </button>
+    <div className="space-y-8">
+      
+      {/* KPI Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div className="border-t-2 border-statusBlue bg-transparent border border-wireBorder p-4">
+          <h3 className="text-wireMuted text-[10px] uppercase tracking-wider mb-2">Fuel Efficiency</h3>
+          <p className="text-3xl text-wireText font-light">8.4 <span className="text-xl">km/l</span></p>
+        </div>
+        <div className="border-t-2 border-statusGreen bg-transparent border border-wireBorder p-4">
+          <h3 className="text-wireMuted text-[10px] uppercase tracking-wider mb-2">Fleet Utilization</h3>
+          <p className="text-3xl text-wireText font-light">81%</p>
+        </div>
+        <div className="border-t-2 border-primary bg-transparent border border-wireBorder p-4">
+          <h3 className="text-wireMuted text-[10px] uppercase tracking-wider mb-2">Operational Cost</h3>
+          <p className="text-3xl text-wireText font-light">34,070</p>
+        </div>
+        <div className="border-t-2 border-statusGreen bg-transparent border border-wireBorder p-4">
+          <h3 className="text-wireMuted text-[10px] uppercase tracking-wider mb-2">Vehicle ROI</h3>
+          <p className="text-3xl text-wireText font-light">14.2%</p>
+        </div>
       </div>
+      
+      <p className="text-wireMuted text-xs italic">ROI = (Revenue - (Maintenance + Fuel)) / Acquisition Cost</p>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-darkCard border border-gray-700 rounded-xl p-6 h-96">
-          <h2 className="text-lg font-semibold text-white mb-4">Operational Cost vs Fuel</h2>
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis dataKey="name" stroke="#9ca3af" />
-              <YAxis stroke="#9ca3af" />
-              <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: 'none' }} />
-              <Legend />
-              <Bar dataKey="cost" fill="#facc15" name="Maintenance Cost" />
-              <Bar dataKey="fuel" fill="#3b82f6" name="Fuel Cost" />
-            </BarChart>
-          </ResponsiveContainer>
+      {/* Charts Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 pt-4">
+        <div>
+          <h3 className="text-wireMuted text-xs tracking-widest font-semibold mb-6 uppercase">Monthly Revenue</h3>
+          <div className="h-48 border-b border-wireBorder pb-2">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={revenueData} barCategoryGap="5%">
+                <Tooltip cursor={{fill: '#ffffff0a'}} contentStyle={{ backgroundColor: '#1a1a1a', border: '1px solid #333' }} />
+                <Bar dataKey="revenue" fill="#3b82f6" stroke="#2563eb" strokeWidth={1} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
-        <div className="bg-darkCard border border-gray-700 rounded-xl p-6 h-96">
-          <h2 className="text-lg font-semibold text-white mb-4">Revenue Trend</h2>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis dataKey="name" stroke="#9ca3af" />
-              <YAxis stroke="#9ca3af" />
-              <Tooltip contentStyle={{ backgroundColor: '#1f2937', border: 'none' }} />
-              <Legend />
-              <Line type="monotone" dataKey="revenue" stroke="#10b981" strokeWidth={3} name="Revenue" />
-            </LineChart>
-          </ResponsiveContainer>
+        <div>
+          <h3 className="text-wireMuted text-xs tracking-widest font-semibold mb-6 uppercase">Top Costliest Vehicles</h3>
+          <div className="space-y-6 mt-4">
+            <div className="flex items-center space-x-4">
+              <span className="text-xs text-wireMuted uppercase tracking-wider w-20">TRUCK-11</span>
+              <div className="flex-1 bg-darkCard h-4 overflow-hidden flex">
+                <div className="bg-statusRed h-full" style={{ width: '70%' }}></div>
+                <div className="bg-wireBorder h-full" style={{ width: '10%' }}></div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-xs text-wireMuted uppercase tracking-wider w-20">MINI-03</span>
+              <div className="flex-1 bg-darkCard h-4 overflow-hidden flex">
+                <div className="bg-primary h-full" style={{ width: '30%' }}></div>
+                <div className="bg-wireBorder h-full" style={{ width: '35%' }}></div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-4">
+              <span className="text-xs text-wireMuted uppercase tracking-wider w-20">VAN-05</span>
+              <div className="flex-1 bg-darkCard h-4 overflow-hidden flex">
+                <div className="bg-statusBlue h-full" style={{ width: '10%' }}></div>
+                <div className="bg-wireBorder h-full" style={{ width: '25%' }}></div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

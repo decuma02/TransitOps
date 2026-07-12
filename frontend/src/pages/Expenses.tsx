@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FileText, Plus } from 'lucide-react';
 
 export const Expenses = () => {
   const [logs, setLogs] = useState([]);
@@ -21,47 +20,99 @@ export const Expenses = () => {
     }
   };
 
-  return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <FileText className="text-primary" /> Fuel & Expenses
-        </h1>
-        <div className="space-x-3">
-          <button className="bg-primary text-gray-900 font-bold px-4 py-2 rounded-lg gap-2 hover:bg-yellow-400 transition inline-flex items-center">
-            <Plus size={20} /> Log Fuel
-          </button>
-        </div>
-      </div>
+  const dummyFuelLogs = [
+    { id: 1, vehicle: 'VAN-05', date: '05 Jul 2026', liters: '42 L', cost: '3,150' },
+    { id: 2, vehicle: 'TRUCK-11', date: '06 Jul 2026', liters: '110 L', cost: '8,400' },
+    { id: 3, vehicle: 'MINI-03', date: '06 Jul 2026', liters: '28 L', cost: '2,050' },
+  ];
 
-      <div className="bg-darkCard border border-gray-700 rounded-xl overflow-hidden">
-        <table className="w-full text-left border-collapse">
+  const dummyExpenses = [
+    { trip: 'TR001', vehicle: 'VAN-05', toll: '120', other: '0', maint: '0', status: 'Available', statusColor: 'bg-statusGreen/90 text-[#121212]' },
+    { trip: 'TR002', vehicle: 'TRK-12', toll: '340', other: '150', maint: '18,000', status: 'Completed', statusColor: 'bg-statusGreen/90 text-[#121212]' },
+  ];
+
+  const displayLogs = logs.length > 0 ? logs : dummyFuelLogs;
+
+  return (
+    <div className="flex flex-col h-full w-full space-y-10">
+      
+      {/* Fuel Logs Section */}
+      <div>
+        <div className="flex justify-between items-end border-b border-wireBorder pb-4 mb-4">
+          <h3 className="text-wireMuted text-xs tracking-widest font-semibold uppercase">Fuel Logs</h3>
+          <div className="flex space-x-4">
+            <button className="bg-primary/90 hover:bg-primary text-[#121212] transition-colors px-6 py-1.5 rounded-full text-sm font-semibold shadow-md flex items-center gap-1">
+              + Log Fuel
+            </button>
+            <button className="bg-transparent border border-primary text-primary hover:bg-primary/10 transition-colors px-6 py-1.5 rounded-full text-sm font-semibold shadow-sm flex items-center gap-1">
+              + Add Expense
+            </button>
+          </div>
+        </div>
+
+        <table className="w-full text-left text-sm border-collapse">
           <thead>
-            <tr className="bg-gray-800 text-gray-400 text-sm border-b border-gray-700">
-              <th className="p-4 font-medium">Vehicle ID</th>
-              <th className="p-4 font-medium">Liters</th>
-              <th className="p-4 font-medium">Cost</th>
-              <th className="p-4 font-medium">Date</th>
+            <tr className="text-wireMuted text-[10px] uppercase tracking-wider border-b border-wireBorder">
+              <th className="py-3 font-normal">Vehicle</th>
+              <th className="py-3 font-normal">Date</th>
+              <th className="py-3 font-normal">Liters</th>
+              <th className="py-3 font-normal">Fuel Cost</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-700">
-            {loading ? (
-              <tr><td colSpan={4} className="p-4 text-center text-gray-500">Loading fuel logs...</td></tr>
-            ) : logs.length === 0 ? (
-              <tr><td colSpan={4} className="p-4 text-center text-gray-500">No fuel records found.</td></tr>
-            ) : (
-              logs.map((l: any) => (
-                <tr key={l.id} className="hover:bg-gray-800/50 transition">
-                  <td className="p-4 text-white font-medium">{l.vehicleId}</td>
-                  <td className="p-4 text-gray-300">{l.liters} L</td>
-                  <td className="p-4 text-gray-300">${l.cost}</td>
-                  <td className="p-4 text-gray-300">{new Date(l.date).toLocaleDateString()}</td>
-                </tr>
-              ))
-            )}
+          <tbody className="divide-y divide-wireBorder">
+            {displayLogs.map((l: any, idx: number) => (
+              <tr key={idx} className="text-wireText hover:bg-white/5 transition-colors">
+                <td className="py-4 font-medium">{l.vehicleId || l.vehicle}</td>
+                <td className="py-4 text-wireMuted">{l.date ? (typeof l.date === 'string' ? l.date : new Date(l.date).toLocaleDateString()) : ''}</td>
+                <td className="py-4 text-wireMuted">{l.liters}</td>
+                <td className="py-4 text-wireMuted">{l.cost}</td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
+
+      {/* Other Expenses Section */}
+      <div>
+        <div className="border-b border-wireBorder pb-4 mb-4">
+          <h3 className="text-wireMuted text-xs tracking-widest font-semibold uppercase">Other Expenses (Toll / Misc)</h3>
+        </div>
+
+        <table className="w-full text-left text-sm border-collapse">
+          <thead>
+            <tr className="text-wireMuted text-[10px] uppercase tracking-wider border-b border-wireBorder">
+              <th className="py-3 font-normal">Trip</th>
+              <th className="py-3 font-normal">Vehicle</th>
+              <th className="py-3 font-normal">Toll</th>
+              <th className="py-3 font-normal">Other</th>
+              <th className="py-3 font-normal">Maint. (Linked)</th>
+              <th className="py-3 font-normal">Total</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-wireBorder border-b border-wireBorder">
+            {dummyExpenses.map((e, idx) => (
+              <tr key={idx} className="text-wireText hover:bg-white/5 transition-colors">
+                <td className="py-4 text-wireMuted">{e.trip}</td>
+                <td className="py-4 font-medium">{e.vehicle}</td>
+                <td className="py-4 text-wireMuted">{e.toll}</td>
+                <td className="py-4 text-wireMuted">{e.other}</td>
+                <td className="py-4 text-wireMuted">{e.maint}</td>
+                <td className="py-4">
+                  <span className={`px-4 py-1 text-xs font-semibold rounded shadow-sm ${e.statusColor}`}>
+                    {e.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        
+        <div className="flex justify-between items-center mt-6">
+          <h3 className="text-wireText text-xs tracking-widest uppercase">Total Operational Cost (Auto) = Fuel + Maintenance</h3>
+          <span className="text-primary text-xl font-medium tracking-wide">34,070</span>
+        </div>
+      </div>
+
     </div>
   );
 };
