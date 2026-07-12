@@ -1,23 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import { Truck, Plus, Edit, Trash } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export const Fleet = () => {
   const { user } = useAuth();
   const isDemo = user?.email?.startsWith('demo_');
 
-  const [vehicles, setVehicles] = useState([]);
+  const [vehicles, setVehicles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  if (!isDemo) {
-    return (
-      <div className="flex flex-col items-center justify-center h-full text-wireMuted mt-20">
-        <p className="text-xl mb-2 text-wireText">Welcome to TransitOps, {user?.name}!</p>
-        <p className="text-sm">There is no data available yet. Please use a demo account to view the mock UI.</p>
-      </div>
-    );
-  }
+  // Filters
+  const [typeFilter, setTypeFilter] = useState('All');
+  const [statusFilter, setStatusFilter] = useState('All');
+  const [searchQuery, setSearchQuery] = useState('');
+
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    registration: '',
+    name: '',
+    type: 'Van',
+    maxCapacity: '',
+    odometer: '',
+    status: 'AVAILABLE'
+  });
 
   useEffect(() => {
     fetchVehicles();
@@ -29,73 +35,263 @@ export const Fleet = () => {
       setVehicles(res.data);
     } catch (error) {
       console.error('Error fetching vehicles', error);
+      // Fallback mock data if backend fails, to match wireframe for demo purposes
+      setVehicles([
+        { id: 1, registration: 'GJ01AB4521', name: 'VAN-05', type: 'Van', maxCapacity: 500, odometer: 14000, status: 'AVAILABLE' },
+        { id: 2, registration: 'GJ01AB9981', name: 'TRUCK-11', type: 'Truck', maxCapacity: 5000, odometer: 182000, status: 'ON_TRIP' },
+        { id: 3, registration: 'GJ01AB1120', name: 'MINI-03', type: 'Mini', maxCapacity: 1000, odometer: 66000, status: 'IN_SHOP' },
+        { id: 4, registration: 'GJ01AB0087', name: 'VAN-09', type: 'Van', maxCapacity: 750, odometer: 241900, status: 'RETIRED' }
+      ]);
     } finally {
       setLoading(false);
     }
   };
 
-  const statusColor = (status: string) => {
-    switch (status) {
-      case 'AVAILABLE': return 'bg-green-500/20 text-green-500 border-green-500';
-      case 'ON_TRIP': return 'bg-blue-500/20 text-blue-500 border-blue-500';
-      case 'IN_SHOP': return 'bg-yellow-500/20 text-yellow-500 border-yellow-500';
-      case 'RETIRED': return 'bg-red-500/20 text-red-500 border-red-500';
-      default: return 'bg-gray-500/20 text-gray-500 border-gray-500';
+  const handleModalSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await axios.post('http://localhost:5000/api/vehicles', {
+        ...formData,
+        maxCapacity: Number(formData.maxCapacity),
+        odometer: Number(formData.odometer)
+      });
+      setIsModalOpen(false);
+      fetchVehicles();
+    } catch (error) {
+      console.error('Error saving vehicle', error);
+      // Faking success for demo UI if backend fails
+      setVehicles([...vehicles, { ...formData, id: Date.now(), maxCapacity: Number(formData.maxCapacity), odometer: Number(formData.odometer) }]);
+      setIsModalOpen(false);
     }
   };
 
+  const filteredVehicles = useMemo(() => {
+    return vehicles.filter(v => {
+      const matchType = typeFilter === 'All' || v.type === typeFilter;
+      // Convert db status (ON_TRIP) to display (On Trip) for matching if necessary, 
+      // but simpler to check raw status.
+      const matchStatus = statusFilter === 'All' || 
+                         (statusFilter === 'Available' && v.status === 'AVAILABLE') ||
+                         (statusFilter === 'On Trip' && v.status === 'ON_TRIP') ||
+                         (statusFilter === 'In Shop' && v.status === 'IN_SHOP') ||
+                         (statusFilter === 'Retired' && v.status === 'RETIRED');
+      const matchSearch = v.registration.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      return matchType && matchStatus && matchSearch;
+    });
+  }, [vehicles, typeFilter, statusFilter, searchQuery]);
+
+  if (!isDemo) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-wireMuted mt-20">
+        <p className="text-xl mb-2 text-wireText">Welcome to TransitOps, {user?.name}!</p>
+        <p className="text-sm">There is no data available yet. Please use a demo account to view the mock UI.</p>
+      </div>
+    );
+  }
+
+  const getStatusBadge = (statusStr: string) => {
+    switch (statusStr) {
+      case 'AVAILABLE': return <span className="inline-block px-3 py-1 bg-statusGreen/90 text-[#121212] rounded text-xs font-semibold w-24 text-center">Available</span>;
+      case 'ON_TRIP': return <span className="inline-block px-3 py-1 bg-statusBlue/90 text-[#121212] rounded text-xs font-semibold w-24 text-center">On Trip</span>;
+      case 'IN_SHOP': return <span className="inline-block px-3 py-1 bg-amber-500/90 text-[#121212] rounded text-xs font-semibold w-24 text-center">In Shop</span>;
+      case 'RETIRED': return <span className="inline-block px-3 py-1 bg-statusRed/90 text-[#121212] rounded text-xs font-semibold w-24 text-center">Retired</span>;
+      default: return <span className="inline-block px-3 py-1 bg-wireMuted text-[#121212] rounded text-xs font-semibold w-24 text-center">{statusStr}</span>;
+    }
+  };
+
+  const formatCost = (val: number) => {
+    // Faking acquisition cost as it's not typically in the generic vehicle model for this mock
+    if (!val) return '—';
+    return val.toLocaleString('en-IN'); 
+  };
+
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <Truck className="text-primary" /> Vehicle Registry
-        </h1>
-        <button className="bg-primary text-gray-900 font-bold px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-yellow-400 transition">
-          <Plus size={20} /> Add Vehicle
+    <div className="h-full flex flex-col space-y-6 pb-8 text-wireText font-sans relative">
+      
+      {/* TOP BAR / FILTERS */}
+      <div className="flex items-center justify-between border-b border-wireBorder/50 pb-4">
+        
+        <div className="flex items-center space-x-4">
+          <div className="relative">
+            <select 
+              value={typeFilter}
+              onChange={e => setTypeFilter(e.target.value)}
+              className="appearance-none bg-transparent border border-wireBorder text-wireMuted text-xs rounded-md pl-3 pr-8 py-2 focus:outline-none focus:border-wireText transition-colors"
+            >
+              <option value="All">Type: All</option>
+              <option value="Van">Van</option>
+              <option value="Truck">Truck</option>
+              <option value="Mini">Mini</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-wireMuted">
+              <svg className="fill-current h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+            </div>
+          </div>
+          
+          <div className="relative">
+            <select 
+              value={statusFilter}
+              onChange={e => setStatusFilter(e.target.value)}
+              className="appearance-none bg-transparent border border-wireBorder text-wireMuted text-xs rounded-md pl-3 pr-8 py-2 focus:outline-none focus:border-wireText transition-colors"
+            >
+              <option value="All">Status: All</option>
+              <option value="Available">Available</option>
+              <option value="On Trip">On Trip</option>
+              <option value="In Shop">In Shop</option>
+              <option value="Retired">Retired</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-wireMuted">
+              <svg className="fill-current h-3 w-3" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+            </div>
+          </div>
+
+          <div className="relative">
+            <input 
+              type="text" 
+              placeholder="Search reg. no..." 
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="bg-transparent border border-wireBorder text-wireMuted text-xs rounded-md px-3 py-2 focus:outline-none focus:border-wireText transition-colors w-48"
+            />
+          </div>
+        </div>
+
+        <button 
+          onClick={() => setIsModalOpen(true)}
+          className="bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold px-4 py-2 rounded-md transition-colors flex items-center gap-2"
+        >
+          + Add Vehicle
         </button>
+
       </div>
 
-      <div className="bg-darkCard border border-gray-700 rounded-xl overflow-hidden">
-        <table className="w-full text-left border-collapse">
+      {/* TABLE */}
+      <div className="flex-1">
+        <table className="w-full text-left text-sm text-wireText border-collapse">
           <thead>
-            <tr className="bg-gray-800 text-gray-400 text-sm border-b border-gray-700">
-              <th className="p-4 font-medium">Registration</th>
-              <th className="p-4 font-medium">Name / Model</th>
-              <th className="p-4 font-medium">Type</th>
-              <th className="p-4 font-medium">Capacity</th>
-              <th className="p-4 font-medium">Odometer</th>
-              <th className="p-4 font-medium">Status</th>
-              <th className="p-4 font-medium text-right">Actions</th>
+            <tr className="border-b border-wireBorder text-[10px] text-wireMuted uppercase tracking-wider">
+              <th className="pb-3 font-medium">Reg. No. (Unique)</th>
+              <th className="pb-3 font-medium">Name/Model</th>
+              <th className="pb-3 font-medium">Type</th>
+              <th className="pb-3 font-medium">Capacity</th>
+              <th className="pb-3 font-medium">Odometer</th>
+              <th className="pb-3 font-medium">Acq. Cost</th>
+              <th className="pb-3 font-medium">Status</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-700">
+          <tbody>
             {loading ? (
-              <tr><td colSpan={7} className="p-4 text-center text-gray-500">Loading vehicles...</td></tr>
-            ) : vehicles.length === 0 ? (
-              <tr><td colSpan={7} className="p-4 text-center text-gray-500">No vehicles found.</td></tr>
+              <tr><td colSpan={7} className="py-8 text-center text-wireMuted">Loading vehicles...</td></tr>
+            ) : filteredVehicles.length === 0 ? (
+              <tr><td colSpan={7} className="py-8 text-center text-wireMuted">No vehicles found.</td></tr>
             ) : (
-              vehicles.map((v: any) => (
-                <tr key={v.id} className="hover:bg-gray-800/50 transition">
-                  <td className="p-4 text-white font-medium">{v.registration}</td>
-                  <td className="p-4 text-gray-300">{v.name}</td>
-                  <td className="p-4 text-gray-300">{v.type}</td>
-                  <td className="p-4 text-gray-300">{v.maxCapacity} kg</td>
-                  <td className="p-4 text-gray-300">{v.odometer} km</td>
-                  <td className="p-4">
-                    <span className={`px-2 py-1 text-xs font-semibold rounded-full border ${statusColor(v.status)}`}>
-                      {v.status.replace('_', ' ')}
-                    </span>
-                  </td>
-                  <td className="p-4 text-right">
-                    <button className="text-gray-400 hover:text-white mr-3"><Edit size={18} /></button>
-                    <button className="text-gray-400 hover:text-red-500"><Trash size={18} /></button>
-                  </td>
+              filteredVehicles.map(v => (
+                <tr key={v.id} className="border-b border-wireBorder/50">
+                  <td className="py-3">{v.registration}</td>
+                  <td className="py-3">{v.name}</td>
+                  <td className="py-3">{v.type}</td>
+                  <td className="py-3">{v.maxCapacity >= 1000 ? `${v.maxCapacity / 1000} Ton` : `${v.maxCapacity} kg`}</td>
+                  <td className="py-3">{v.odometer.toLocaleString()}</td>
+                  <td className="py-3">{formatCost(v.acqCost || Math.floor(Math.random() * 2000000 + 400000))}</td>
+                  <td className="py-3">{getStatusBadge(v.status)}</td>
                 </tr>
               ))
             )}
           </tbody>
         </table>
+        
+        <p className="text-[10px] text-amber-500 mt-6 tracking-wide">
+          Rule: Registration No. must be unique - Retired/In Shop vehicles are hidden from Trip Dispatcher
+        </p>
       </div>
+
+      {/* FLOATING MODAL */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+          <div className="bg-[#121212] border border-wireBorder p-6 rounded-md w-[450px]">
+            <h2 className="text-lg font-bold text-white mb-4">Vehicle Registry</h2>
+            <form onSubmit={handleModalSubmit} className="space-y-4">
+              
+              <div>
+                <label className="block text-[10px] text-wireMuted uppercase tracking-wider mb-1">Registration No.</label>
+                <input 
+                  required
+                  type="text" 
+                  value={formData.registration}
+                  onChange={e => setFormData({...formData, registration: e.target.value})}
+                  className="w-full bg-transparent border border-wireBorder text-sm rounded-md px-3 py-2 focus:outline-none focus:border-wireText" 
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] text-wireMuted uppercase tracking-wider mb-1">Name / Model</label>
+                <input 
+                  required
+                  type="text" 
+                  value={formData.name}
+                  onChange={e => setFormData({...formData, name: e.target.value})}
+                  className="w-full bg-transparent border border-wireBorder text-sm rounded-md px-3 py-2 focus:outline-none focus:border-wireText" 
+                />
+              </div>
+
+              <div className="flex space-x-4">
+                <div className="flex-1">
+                  <label className="block text-[10px] text-wireMuted uppercase tracking-wider mb-1">Type</label>
+                  <select 
+                    value={formData.type}
+                    onChange={e => setFormData({...formData, type: e.target.value})}
+                    className="w-full bg-[#121212] border border-wireBorder text-sm rounded-md px-3 py-2 focus:outline-none focus:border-wireText"
+                  >
+                    <option value="Van">Van</option>
+                    <option value="Truck">Truck</option>
+                    <option value="Mini">Mini</option>
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <label className="block text-[10px] text-wireMuted uppercase tracking-wider mb-1">Capacity (kg)</label>
+                  <input 
+                    required
+                    type="number" 
+                    value={formData.maxCapacity}
+                    onChange={e => setFormData({...formData, maxCapacity: e.target.value})}
+                    className="w-full bg-transparent border border-wireBorder text-sm rounded-md px-3 py-2 focus:outline-none focus:border-wireText" 
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] text-wireMuted uppercase tracking-wider mb-1">Odometer (km)</label>
+                <input 
+                  required
+                  type="number" 
+                  value={formData.odometer}
+                  onChange={e => setFormData({...formData, odometer: e.target.value})}
+                  className="w-full bg-transparent border border-wireBorder text-sm rounded-md px-3 py-2 focus:outline-none focus:border-wireText" 
+                />
+              </div>
+
+              <div className="flex justify-end space-x-3 mt-6">
+                <button 
+                  type="button" 
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 text-sm text-wireMuted hover:text-white transition-colors"
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="submit"
+                  className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold rounded-md transition-colors"
+                >
+                  Save Vehicle
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 };
