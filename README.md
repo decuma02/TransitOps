@@ -8,6 +8,11 @@
 
 TransitOps is a comprehensive transport operations platform designed to streamline fleet management, trip dispatching, driver assignments, and vehicle maintenance logging. Built on a robust, modern technology stack, it provides real-time insights, automated status transitions, and analytical reporting.
 
+## Live Demo
+
+*   **Frontend**: [https://transit-ops-flame.vercel.app](https://transit-ops-flame.vercel.app)
+*   **Backend API**: [https://transitops-z0id.onrender.com/](https://transitops-z0id.onrender.com/)
+
 ## Architecture & Technology Stack
 
 The platform is designed as a monolithic repository containing a decoupled frontend and backend, fully containerized for seamless deployment.
