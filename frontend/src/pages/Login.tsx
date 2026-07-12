@@ -39,6 +39,18 @@ export const Login = () => {
       <div className="w-1/2 flex items-center justify-center p-12 bg-darkBg">
         <div className="w-full max-w-md bg-darkCard p-8 rounded-xl border border-gray-700 shadow-2xl">
           <h2 className="text-2xl font-bold text-white mb-6">Sign in to your account</h2>
+          
+          <button
+            type="button"
+            onClick={() => {
+              setEmail('demo@transitops.com');
+              setPassword('demo123');
+            }}
+            className="w-full mb-6 bg-gray-700 text-white font-semibold py-2 rounded hover:bg-gray-600 transition border border-gray-600"
+          >
+            Use Demo Credentials
+          </button>
+
           {error && <div className="bg-red-500/10 border border-red-500 text-red-500 p-3 rounded mb-4">{error}</div>}
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>

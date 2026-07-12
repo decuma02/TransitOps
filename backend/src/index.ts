@@ -11,6 +11,31 @@ import analyticsRoutes from './routes/analytics';
 
 dotenv.config();
 
+import prisma from './prisma';
+import bcrypt from 'bcryptjs';
+
+const seedDemoUser = async () => {
+  try {
+    const email = 'demo@transitops.com';
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (!existingUser) {
+      const hashedPassword = await bcrypt.hash('demo123', 10);
+      await prisma.user.create({
+        data: {
+          email,
+          password: hashedPassword,
+          name: 'Demo Fleet Manager',
+          role: 'FLEET_MANAGER',
+        },
+      });
+      console.log('Demo user seeded');
+    }
+  } catch (error) {
+    console.error('Error seeding demo user:', error);
+  }
+};
+seedDemoUser();
+
 const app = express();
 
 app.use(cors());
