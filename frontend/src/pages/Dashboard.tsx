@@ -1,5 +1,6 @@
 import React from 'react';
 import { Truck, CheckCircle, Wrench, Navigation, Clock, Activity } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 const StatCard = ({ title, value, icon, color }: any) => (
   <div className="bg-darkCard border border-gray-700 p-6 rounded-xl flex items-center justify-between">
@@ -14,6 +15,18 @@ const StatCard = ({ title, value, icon, color }: any) => (
 );
 
 export const Dashboard = () => {
+  const { user } = useAuth();
+  const isDemo = user?.email?.startsWith('demo_');
+
+  if (!isDemo) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-wireMuted mt-20">
+        <p className="text-xl mb-2 text-wireText">Welcome to TransitOps, {user?.name}!</p>
+        <p className="text-sm">There is no data available yet. Please use a demo account to view the mock UI.</p>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-white">Dashboard</h1>

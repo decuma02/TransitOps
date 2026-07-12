@@ -1,9 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Trips = () => {
+  const { user } = useAuth();
+  const isDemo = user?.email?.startsWith('demo_');
+
   const [trips, setTrips] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // If not a demo user, return early
+  if (!isDemo) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-wireMuted mt-20">
+        <p className="text-xl mb-2 text-wireText">Welcome to TransitOps, {user?.name}!</p>
+        <p className="text-sm">There is no data available yet. Please use a demo account to view the mock UI.</p>
+      </div>
+    );
+  }
 
   // Form states to show the warning
   const [vehicleCapacity] = useState(500);

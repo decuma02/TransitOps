@@ -1,6 +1,18 @@
 import React from 'react';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Settings = () => {
+  const { user } = useAuth();
+  const isDemo = user?.email?.startsWith('demo_');
+
+  if (!isDemo) {
+    return (
+      <div className="flex flex-col items-center justify-center h-full text-wireMuted mt-20">
+        <p className="text-xl mb-2 text-wireText">Welcome to TransitOps, {user?.name}!</p>
+        <p className="text-sm">There is no data available yet. Please use a demo account to view the mock UI.</p>
+      </div>
+    );
+  }
   return (
     <div className="flex h-full w-full">
       {/* Left Column: General */}
