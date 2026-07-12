@@ -16,22 +16,30 @@ import bcrypt from 'bcryptjs';
 
 const seedDemoUser = async () => {
   try {
-    const email = 'demo@transitops.com';
-    const existingUser = await prisma.user.findUnique({ where: { email } });
-    if (!existingUser) {
-      const hashedPassword = await bcrypt.hash('demo123', 10);
-      await prisma.user.create({
-        data: {
-          email,
-          password: hashedPassword,
-          name: 'Demo Fleet Manager',
-          role: 'FLEET_MANAGER',
-        },
-      });
-      console.log('Demo user seeded');
+    const demoUsers = [
+      { email: 'demo_fleet@transitops.com', name: 'Demo Fleet Manager', role: 'FLEET_MANAGER' },
+      { email: 'demo_driver@transitops.com', name: 'Demo Driver', role: 'DRIVER' },
+      { email: 'demo_safety@transitops.com', name: 'Demo Safety Officer', role: 'SAFETY_OFFICER' },
+      { email: 'demo_finance@transitops.com', name: 'Demo Financial Analyst', role: 'FINANCIAL_ANALYST' },
+    ];
+    
+    for (const user of demoUsers) {
+      const existingUser = await prisma.user.findUnique({ where: { email: user.email } });
+      if (!existingUser) {
+        const hashedPassword = await bcrypt.hash('demo123', 10);
+        await prisma.user.create({
+          data: {
+            email: user.email,
+            password: hashedPassword,
+            name: user.name,
+            role: user.role as any,
+          },
+        });
+        console.log(`${user.role} demo user seeded`);
+      }
     }
   } catch (error) {
-    console.error('Error seeding demo user:', error);
+    console.error('Error seeding demo users:', error);
   }
 };
 seedDemoUser();

@@ -4,19 +4,18 @@ import { useAuth } from '../contexts/AuthContext';
 
 export const Sidebar = () => {
   const { user } = useAuth();
-  const menu = [
-    { name: 'Dashboard', path: '/' },
-    { name: 'Fleet', path: '/fleet' },
-    { name: 'Drivers', path: '/drivers' },
-    { name: 'Trips', path: '/trips' },
-    { name: 'Maintenance', path: '/maintenance' },
-    { name: 'Fuel & Expenses', path: '/expenses' },
-    { name: 'Analytics', path: '/analytics' },
+  const allMenu = [
+    { name: 'Dashboard', path: '/', roles: ['FLEET_MANAGER', 'DRIVER', 'SAFETY_OFFICER', 'FINANCIAL_ANALYST'] },
+    { name: 'Fleet', path: '/fleet', roles: ['FLEET_MANAGER', 'SAFETY_OFFICER'] },
+    { name: 'Drivers', path: '/drivers', roles: ['FLEET_MANAGER', 'SAFETY_OFFICER'] },
+    { name: 'Trips', path: '/trips', roles: ['FLEET_MANAGER', 'DRIVER'] },
+    { name: 'Maintenance', path: '/maintenance', roles: ['FLEET_MANAGER', 'SAFETY_OFFICER'] },
+    { name: 'Fuel & Expenses', path: '/expenses', roles: ['FLEET_MANAGER', 'FINANCIAL_ANALYST'] },
+    { name: 'Analytics', path: '/analytics', roles: ['FLEET_MANAGER', 'SAFETY_OFFICER', 'FINANCIAL_ANALYST'] },
+    { name: 'Settings', path: '/settings', roles: ['FLEET_MANAGER'] },
   ];
 
-  if (user?.role === 'ADMIN' || user?.role === 'FLEET_MANAGER') {
-    menu.push({ name: 'Settings', path: '/settings' });
-  }
+  const menu = allMenu.filter(item => user?.role && item.roles.includes(user.role));
 
   return (
     <div className="w-64 bg-darkBg border-r border-wireBorder flex flex-col h-screen">
