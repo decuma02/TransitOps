@@ -6,6 +6,11 @@
 
 **Developed in the Odoo Hackathon 2026**
 
+**Problem Statement:** TransitOps Smart Transport Operations Platform  
+**Evaluator:** Manushi Shah (mash)  
+
+*Special thanks to the Odoo evaluator and team for this opportunity!*
+
 TransitOps is a comprehensive transport operations platform designed to streamline fleet management, trip dispatching, driver assignments, and vehicle maintenance logging. Built on a robust, modern technology stack, it provides real-time insights, automated status transitions, and analytical reporting.
 
 ## Team
