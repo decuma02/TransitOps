@@ -29,7 +29,7 @@ export const Trips = () => {
 
   const fetchTrips = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/trips');
+      const res = await axios.get('/api/trips');
       setTrips(res.data);
     } catch (error) {
       console.error('Error fetching trips', error);

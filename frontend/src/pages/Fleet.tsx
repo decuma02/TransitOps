@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { useAuth } from '../contexts/AuthContext';
+import { apiFileUrl } from '../lib/api';
 
 export const Fleet = () => {
   const { user } = useAuth();
@@ -37,7 +38,7 @@ export const Fleet = () => {
 
   const fetchVehicles = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/vehicles');
+      const res = await axios.get('/api/vehicles');
       setVehicles(res.data);
     } catch (error) {
       console.error('Error fetching vehicles', error);
@@ -56,7 +57,7 @@ export const Fleet = () => {
   const handleModalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/vehicles', {
+      await axios.post('/api/vehicles', {
         ...formData,
         maxCapacity: Number(formData.maxCapacity),
         odometer: Number(formData.odometer)
@@ -75,7 +76,7 @@ export const Fleet = () => {
     setSelectedVehicle(vehicle);
     setIsDocModalOpen(true);
     try {
-      const res = await axios.get(`http://localhost:5000/api/vehicles/${vehicle.id}/documents`);
+      const res = await axios.get(`/api/vehicles/${vehicle.id}/documents`);
       setDocuments(res.data);
     } catch (err) {
       console.error(err);
@@ -91,10 +92,10 @@ export const Fleet = () => {
     fd.append('file', docFile);
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`http://localhost:5000/api/vehicles/${selectedVehicle.id}/documents`, fd, {
+      await axios.post(`/api/vehicles/${selectedVehicle.id}/documents`, fd, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
-      const res = await axios.get(`http://localhost:5000/api/vehicles/${selectedVehicle.id}/documents`);
+      const res = await axios.get(`/api/vehicles/${selectedVehicle.id}/documents`);
       setDocuments(res.data);
       setDocFile(null);
       
@@ -354,7 +355,7 @@ export const Fleet = () => {
                   {documents.map((doc: any, i) => (
                     <li key={i} className="flex justify-between items-center bg-darkCard p-2 rounded border border-wireBorder/50 text-sm">
                       <span className="text-wireText truncate w-3/4">{doc.name}</span>
-                      <a href={`http://localhost:5000${doc.fileUrl}`} target="_blank" rel="noreferrer" className="text-primary text-xs hover:underline">View</a>
+                      <a href={apiFileUrl(doc.fileUrl)} target="_blank" rel="noreferrer" className="text-primary text-xs hover:underline">View</a>
                     </li>
                   ))}
                 </ul>

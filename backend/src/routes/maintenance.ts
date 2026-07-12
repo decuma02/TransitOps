@@ -1,6 +1,8 @@
 import express from 'express';
+import { Prisma } from '@prisma/client';
 import prisma from '../prisma';
 import { authMiddleware, requireRole } from '../middleware/auth';
+import { paramId } from '../utils/params';
 
 const router = express.Router();
 
@@ -15,11 +17,11 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', requireRole(['ADMIN', 'FLEET_MANAGER']), async (req, res) => {
+router.post('/', requireRole(['FLEET_MANAGER']), async (req, res) => {
   try {
     const { vehicleId, ...rest } = req.body;
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const log = await tx.maintenanceLog.create({
         data: {
           vehicleId,
@@ -42,13 +44,13 @@ router.post('/', requireRole(['ADMIN', 'FLEET_MANAGER']), async (req, res) => {
   }
 });
 
-router.post('/:id/close', requireRole(['ADMIN', 'FLEET_MANAGER']), async (req, res) => {
+router.post('/:id/close', requireRole(['FLEET_MANAGER']), async (req, res) => {
   try {
-    const logId = req.params.id;
+    const logId = paramId(req.params);
     const log = await prisma.maintenanceLog.findUnique({ where: { id: logId } });
     if (!log) return res.status(404).json({ error: 'Log not found' });
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const closedLog = await tx.maintenanceLog.update({
         where: { id: logId },
         data: { status: 'CLOSED' }

@@ -1,6 +1,7 @@
 import express from 'express';
 import prisma from '../prisma';
 import { authMiddleware, requireRole } from '../middleware/auth';
+import { paramId } from '../utils/params';
 import multer from 'multer';
 import path from 'path';
 
@@ -27,7 +28,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', requireRole(['ADMIN', 'FLEET_MANAGER']), async (req, res) => {
+router.post('/', requireRole(['FLEET_MANAGER']), async (req, res) => {
   try {
     const vehicle = await prisma.vehicle.create({
       data: req.body,
@@ -38,10 +39,10 @@ router.post('/', requireRole(['ADMIN', 'FLEET_MANAGER']), async (req, res) => {
   }
 });
 
-router.put('/:id', requireRole(['ADMIN', 'FLEET_MANAGER']), async (req, res) => {
+router.put('/:id', requireRole(['FLEET_MANAGER']), async (req, res) => {
   try {
     const vehicle = await prisma.vehicle.update({
-      where: { id: req.params.id },
+      where: { id: paramId(req.params) },
       data: req.body,
     });
     res.json(vehicle);
@@ -50,10 +51,10 @@ router.put('/:id', requireRole(['ADMIN', 'FLEET_MANAGER']), async (req, res) => 
   }
 });
 
-router.delete('/:id', requireRole(['ADMIN', 'FLEET_MANAGER']), async (req, res) => {
+router.delete('/:id', requireRole(['FLEET_MANAGER']), async (req, res) => {
   try {
     await prisma.vehicle.delete({
-      where: { id: req.params.id },
+      where: { id: paramId(req.params) },
     });
     res.json({ message: 'Vehicle deleted' });
   } catch (err) {
@@ -64,7 +65,7 @@ router.delete('/:id', requireRole(['ADMIN', 'FLEET_MANAGER']), async (req, res) 
 router.get('/:id/documents', async (req, res) => {
   try {
     const documents = await prisma.vehicleDocument.findMany({
-      where: { vehicleId: req.params.id },
+      where: { vehicleId: paramId(req.params) },
       orderBy: { createdAt: 'desc' }
     });
     res.json(documents);
@@ -73,14 +74,14 @@ router.get('/:id/documents', async (req, res) => {
   }
 });
 
-router.post('/:id/documents', requireRole(['ADMIN', 'FLEET_MANAGER', 'DRIVER']), upload.single('file'), async (req, res) => {
+router.post('/:id/documents', requireRole(['FLEET_MANAGER', 'DRIVER']), upload.single('file'), async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ error: 'No file uploaded' });
     }
     const document = await prisma.vehicleDocument.create({
       data: {
-        vehicleId: req.params.id,
+        vehicleId: paramId(req.params),
         name: req.body.name || req.file.originalname,
         fileUrl: `/uploads/${req.file.filename}`,
       },

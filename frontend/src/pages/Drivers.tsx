@@ -30,7 +30,7 @@ export const Drivers = () => {
 
   const fetchDrivers = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/drivers');
+      const res = await axios.get('/api/drivers');
       setDrivers(res.data);
     } catch (error) {
       console.error('Error fetching drivers', error);
@@ -50,7 +50,7 @@ export const Drivers = () => {
     e.preventDefault();
     try {
       // Trying to map to generic backend if available, otherwise just UI
-      await axios.post('http://localhost:5000/api/drivers', {
+      await axios.post('/api/drivers', {
         name: formData.name,
         licenseNumber: formData.licenseNo,
         licenseCategory: formData.category,
@@ -72,7 +72,7 @@ export const Drivers = () => {
     setSendingReminders(true);
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post('http://localhost:5000/api/drivers/reminders', {}, {
+      const res = await axios.post('/api/drivers/reminders', {}, {
         headers: { 'Authorization': `Bearer ${token}` }
       });
       alert(res.data.message || 'Reminders sent successfully!');

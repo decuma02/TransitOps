@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
 import authRoutes from './routes/auth';
 import vehicleRoutes from './routes/vehicles';
 import driverRoutes from './routes/drivers';
@@ -10,6 +12,16 @@ import fuelRoutes from './routes/fuel';
 import analyticsRoutes from './routes/analytics';
 
 dotenv.config();
+
+if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
+  console.error('JWT_SECRET is required in production');
+  process.exit(1);
+}
+
+const uploadsDir = path.join(process.cwd(), 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 import prisma from './prisma';
 import bcrypt from 'bcryptjs';
@@ -46,7 +58,22 @@ seedDemoUser();
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'http://localhost',
+  'http://localhost:80',
+  'http://localhost:5173',
+].filter(Boolean) as string[];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(null, false);
+    }
+  },
+}));
 app.use(express.json());
 
 app.use('/api/auth', authRoutes);

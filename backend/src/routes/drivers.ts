@@ -1,6 +1,7 @@
 import express from 'express';
 import prisma from '../prisma';
 import { authMiddleware, requireRole } from '../middleware/auth';
+import { paramId } from '../utils/params';
 import nodemailer from 'nodemailer';
 
 const router = express.Router();
@@ -16,7 +17,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', requireRole(['ADMIN', 'FLEET_MANAGER', 'SAFETY_OFFICER']), async (req, res) => {
+router.post('/', requireRole(['FLEET_MANAGER', 'SAFETY_OFFICER']), async (req, res) => {
   try {
     const { licenseExpiry, ...rest } = req.body;
     const driver = await prisma.driver.create({
@@ -31,14 +32,14 @@ router.post('/', requireRole(['ADMIN', 'FLEET_MANAGER', 'SAFETY_OFFICER']), asyn
   }
 });
 
-router.put('/:id', requireRole(['ADMIN', 'FLEET_MANAGER', 'SAFETY_OFFICER']), async (req, res) => {
+router.put('/:id', requireRole(['FLEET_MANAGER', 'SAFETY_OFFICER']), async (req, res) => {
   try {
     const { licenseExpiry, ...rest } = req.body;
     const data = { ...rest };
     if (licenseExpiry) data.licenseExpiry = new Date(licenseExpiry);
     
     const driver = await prisma.driver.update({
-      where: { id: req.params.id },
+      where: { id: paramId(req.params) },
       data,
     });
     res.json(driver);
@@ -47,7 +48,7 @@ router.put('/:id', requireRole(['ADMIN', 'FLEET_MANAGER', 'SAFETY_OFFICER']), as
   }
 });
 
-router.post('/reminders', requireRole(['ADMIN', 'FLEET_MANAGER', 'SAFETY_OFFICER']), async (req, res) => {
+router.post('/reminders', requireRole(['FLEET_MANAGER', 'SAFETY_OFFICER']), async (req, res) => {
   try {
     const thirtyDaysFromNow = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     const expiringDrivers = await prisma.driver.findMany({

@@ -24,7 +24,7 @@ export const Analytics = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/analytics/charts');
+      const res = await axios.get('/api/analytics/charts');
       setData(res.data);
     } catch (error) {
       console.error('Error fetching analytics', error);
@@ -34,7 +34,7 @@ export const Analytics = () => {
   const handleExportPDF = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:5000/api/analytics/export-pdf', {
+      const res = await axios.get('/api/analytics/export-pdf', {
         responseType: 'blob',
         headers: { 'Authorization': `Bearer ${token}` }
       });

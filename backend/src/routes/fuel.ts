@@ -15,7 +15,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', requireRole(['ADMIN', 'FLEET_MANAGER', 'DRIVER', 'FINANCIAL_ANALYST']), async (req, res) => {
+router.post('/', requireRole(['FLEET_MANAGER', 'DRIVER', 'FINANCIAL_ANALYST']), async (req, res) => {
   try {
     const log = await prisma.fuelLog.create({
       data: req.body,

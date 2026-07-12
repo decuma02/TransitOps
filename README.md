@@ -35,7 +35,7 @@ The entire infrastructure can be orchestrated effortlessly using Docker Compose.
 *   Docker
 *   Docker Compose
 
-### Quick Start
+### Quick Start (Docker)
 
 1.  Clone the repository and navigate into the root directory.
 2.  Start the containers in detached mode:
@@ -51,6 +51,66 @@ The entire infrastructure can be orchestrated effortlessly using Docker Compose.
 To stop the services and remove the containers, run:
 ```bash
 docker-compose down
+```
+
+## Cloud Deployment
+
+### Database (Prisma Postgres / Managed PostgreSQL)
+
+1. Create a PostgreSQL database (e.g. [Prisma Postgres](https://www.prisma.io/postgres), Neon, or Render Postgres).
+2. Copy the connection string and ensure it includes `?sslmode=require` for hosted databases.
+3. Run migrations against the database:
+   ```bash
+   cd backend
+   cp .env.example .env
+   # Set DATABASE_URL in .env
+   npx prisma migrate deploy
+   ```
+
+### Backend (Render)
+
+1. Connect the GitHub repository to [Render](https://render.com).
+2. Use the included `render.yaml` blueprint, or create a **Web Service** manually:
+   * **Root Directory**: `backend`
+   * **Build Command**: `npm install && npx prisma generate`
+   * **Start Command**: `npm start`
+   * **Health Check Path**: `/api/health`
+3. Set environment variables:
+   * `DATABASE_URL` — your Prisma/managed Postgres connection string
+   * `JWT_SECRET` — a long random secret
+   * `FRONTEND_URL` — your Vercel frontend URL (e.g. `https://your-app.vercel.app`)
+   * `NODE_ENV` — `production`
+
+### Frontend (Vercel)
+
+1. Import the repository into [Vercel](https://vercel.com).
+2. Configure the project:
+   * **Root Directory**: `frontend`
+   * **Framework Preset**: Vite
+   * **Build Command**: `npm run build`
+   * **Output Directory**: `dist`
+3. Set environment variable:
+   * `VITE_API_URL` — your Render backend URL (e.g. `https://transitops-api.onrender.com`)
+4. The included `vercel.json` handles SPA client-side routing.
+
+### Local Frontend Development
+
+```bash
+cd frontend
+cp .env.example .env.local
+# Set VITE_API_URL=http://localhost:5000 (or leave empty to use Vite proxy)
+npm install
+npm run dev
+```
+
+### Local Backend Development
+
+```bash
+cd backend
+cp .env.example .env
+# Set DATABASE_URL and JWT_SECRET
+npm install
+npm run dev
 ```
 
 ## Repository Structure

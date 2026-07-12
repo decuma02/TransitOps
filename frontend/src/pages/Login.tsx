@@ -39,13 +39,13 @@ export const Login = () => {
     setError('');
     try {
       if (isLogin) {
-        const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+        const res = await axios.post('/api/auth/login', { email, password });
         login(res.data.token, res.data.user);
         navigate('/');
       } else {
-        await axios.post('http://localhost:5000/api/auth/register', { name, email, password, role: role || 'FLEET_MANAGER' });
+        await axios.post('/api/auth/register', { name, email, password, role: role || 'FLEET_MANAGER' });
         // After successful registration, automatically log in
-        const res = await axios.post('http://localhost:5000/api/auth/login', { email, password });
+        const res = await axios.post('/api/auth/login', { email, password });
         login(res.data.token, res.data.user);
         navigate('/');
       }

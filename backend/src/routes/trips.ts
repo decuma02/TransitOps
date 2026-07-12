@@ -1,6 +1,8 @@
 import express from 'express';
+import { Prisma } from '@prisma/client';
 import prisma from '../prisma';
 import { authMiddleware, requireRole } from '../middleware/auth';
+import { paramId } from '../utils/params';
 
 const router = express.Router();
 
@@ -17,7 +19,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', requireRole(['ADMIN', 'FLEET_MANAGER', 'DRIVER']), async (req, res) => {
+router.post('/', requireRole(['FLEET_MANAGER', 'DRIVER']), async (req, res) => {
   try {
     const { vehicleId, driverId, cargoWeight, ...rest } = req.body;
     
@@ -32,7 +34,7 @@ router.post('/', requireRole(['ADMIN', 'FLEET_MANAGER', 'DRIVER']), async (req, 
     if (driver.status !== 'AVAILABLE') return res.status(400).json({ error: 'Driver is not available' });
 
     // Transaction for creating trip and updating statuses
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const trip = await tx.trip.create({
         data: {
           vehicleId,
@@ -62,13 +64,13 @@ router.post('/', requireRole(['ADMIN', 'FLEET_MANAGER', 'DRIVER']), async (req, 
   }
 });
 
-router.post('/:id/complete', requireRole(['ADMIN', 'FLEET_MANAGER', 'DRIVER']), async (req, res) => {
+router.post('/:id/complete', requireRole(['FLEET_MANAGER', 'DRIVER']), async (req, res) => {
   try {
-    const tripId = req.params.id;
+    const tripId = paramId(req.params);
     const trip = await prisma.trip.findUnique({ where: { id: tripId } });
     if (!trip || trip.status !== 'DISPATCHED') return res.status(400).json({ error: 'Trip not dispatchable' });
 
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: Prisma.TransactionClient) => {
       const completedTrip = await tx.trip.update({
         where: { id: tripId },
         data: { status: 'COMPLETED', completedAt: new Date() }
