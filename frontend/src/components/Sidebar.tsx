@@ -20,7 +20,13 @@ export const Sidebar = () => {
   return (
     <div className="w-64 bg-darkBg border-r border-wireBorder flex flex-col h-screen">
       <div className="p-6 text-2xl tracking-wide flex items-center space-x-2 border-b border-wireBorder mb-4">
-        <span className="text-wireText font-light">TransitOps</span>
+        <span className="text-wireText font-light">
+          <img 
+              src="/icon.png" 
+              alt="TransitOps Logo" 
+              className="h-12 w-auto mb-2 object-contain" 
+            />
+            TransitOps</span>
       </div>
       <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
         {menu.map((item) => (
