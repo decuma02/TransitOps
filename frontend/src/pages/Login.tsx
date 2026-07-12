@@ -174,17 +174,7 @@ export const Login = () => {
             </button>
           </form>
 
-          {isLogin && (
-            <div className="mt-10 pt-8 border-t border-gray-800">
-              <p className="text-gray-400 text-xs mb-3">Access is scoped by role after login:</p>
-              <ul className="text-gray-500 text-xs space-y-1.5">
-                <li>• Fleet Manager &rarr; Fleet, Maintenance</li>
-                <li>• Dispatcher &rarr; Dashboard, Trips</li>
-                <li>• Safety Officer &rarr; Drivers, Compliance</li>
-                <li>• Financial Analyst &rarr; Fuel & Expenses, Analytics</li>
-              </ul>
-            </div>
-          )}
+
 
           <div className="mt-8 text-center text-sm text-gray-500">
             {isLogin ? (
