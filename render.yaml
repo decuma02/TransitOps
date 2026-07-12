@@ -3,7 +3,7 @@ services:
     name: transitops-api
     env: docker
     rootDir: backend
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: backend/Dockerfile
     healthCheckPath: /api/health
     envVars:
       - key: DATABASE_URL
